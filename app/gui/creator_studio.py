@@ -17,7 +17,9 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
 from app.services.download_manager import DownloadManager
+from app.services import SettingsManager
 from app.downloaders.pexels_downloader import DownloadSummary
+from app.gui.settings_dialog import SettingsDialog
 
 
 logger = logging.getLogger(__name__)
@@ -49,13 +51,18 @@ class CreatorStudioApp(ctk.CTk):
     `DownloadManager` which performs the actual work.
     """
 
-    def __init__(self, download_manager: Optional[DownloadManager] = None) -> None:
+    def __init__(
+        self,
+        download_manager: Optional[DownloadManager] = None,
+        settings_manager: Optional[SettingsManager] = None,
+    ) -> None:
         super().__init__()
         self.title("Creator Studio AI")
         self.geometry("900x700")
 
         # Services
         self.download_manager = download_manager or DownloadManager()
+        self._settings_manager = settings_manager or SettingsManager()
 
         # UI state
         self._stop_event = threading.Event()
@@ -129,6 +136,12 @@ class CreatorStudioApp(ctk.CTk):
         self.status_label = ctk.CTkLabel(left, text="Status: Waiting...")
         self.status_label.pack(anchor="w")
 
+        # Settings button
+        settings_button = ctk.CTkButton(
+            right, text="Settings", command=self._open_settings,
+        )
+        settings_button.pack(padx=6, pady=(0, 6))
+
         # Right side: log output
         log_label = ctk.CTkLabel(right, text="Activity Log:")
         log_label.pack(anchor="w", pady=(6, 0), padx=6)
@@ -136,6 +149,10 @@ class CreatorStudioApp(ctk.CTk):
         self.log_box = ctk.CTkTextbox(right, width=280, height=420)
         self.log_box.pack(padx=6, pady=6)
         self.log_box.configure(state="disabled")
+
+    def _open_settings(self) -> None:
+        """Open the settings dialog."""
+        SettingsDialog(self, self._settings_manager)
 
     def _browse_folder(self) -> None:
         folder = filedialog.askdirectory()
