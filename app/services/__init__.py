@@ -1,3 +1,5 @@
-"""Service helpers for TechTubeAI."""
+"""Service helpers for Creator Studio AI."""
 
-__all__ = []
+from .settings_manager import SettingsManager
+
+__all__ = ["SettingsManager"]
